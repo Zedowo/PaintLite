@@ -19,6 +19,9 @@ function main() {
     // Create a buffer and put three 2d clip space points in it
     var positionBuffer = gl.createBuffer();
 
+    // check if mouse is dragging
+    var isDragging = false;
+
     // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
@@ -72,7 +75,7 @@ function main() {
         gl.drawArrays(primitiveType, offset, count);
     }
 
-    function pointerDownEvent(event){
+    function updateRectangle(event){
         var rectangle = canvas.getBoundingClientRect();
         var xDisplace = event.clientX - rectangle.left; // need to adjust for viewport vs. pointer position here
         var yDisplace = event.clientY - rectangle.top;
@@ -104,9 +107,26 @@ function main() {
         draw();
     }
 
-    // Event: Mouse click -> Call Draw on coordinates
+    function pointerDownEvent(event){
+        isDragging = true;
+        canvas.setPointerCapture(event.pointerId);
+        updateRectangle(event);
+    }
 
-    canvas.addEventListener("pointerdown", pointerDownEvent)
+    function pointerMoveEvent(event){
+        if (isDragging) updateRectangle(event);
+    }
+
+    function pointerUpEvent(event){
+        isDragging = false;
+    }
+
+    // -- events --
+
+    canvas.addEventListener("pointerdown", pointerDownEvent);
+    canvas.addEventListener("pointermove", pointerMoveEvent);
+    canvas.addEventListener("pointerup", pointerUpEvent);
+    canvas.addEventListener("pointercancel", pointerUpEvent);
 
     draw();
 }

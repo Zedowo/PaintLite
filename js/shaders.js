@@ -1,9 +1,9 @@
 // vertex shader
 var vertexShaderSource = `
   attribute vec4 a_position;
-  attribute vec2 a_texcoord;
+  attribute vec2 a_texcord;
   uniform vec2 u_resolution;
-  varying vec2 v_texcoord;
+  varying vec2 v_texcord;
 
   void main() {
      // convert the position from pixels to 0.0 to 1.0
@@ -18,7 +18,7 @@ var vertexShaderSource = `
      gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
      
      // need to pass along text coordinates to frag
-     v_texcoord = a_texcoord;
+     v_texcord = a_texcord;
   }
 `;
 
@@ -26,9 +26,9 @@ var vertexShaderSource = `
 var fragmentShaderSource = `
   precision mediump float;
   uniform sampler2D u_image;
-  varying vec2 v_texcoord;
+  varying vec2 v_texcord;
 
   void main() {
-    gl_FragColor = texture2D(u_image, v_texcoord);
+    gl_FragColor = texture2D(u_image, v_texcord);
   }
 `;

@@ -22,7 +22,7 @@ function main() {
 
     //- buffers --
 
-    // Create a pos + tex buffer and put three 2d clip space points in it
+    // Create a pos + tex buffer
     var positionBuffer = gl.createBuffer();
     var texcordBuffer = gl.createBuffer();
 
@@ -39,7 +39,7 @@ function main() {
 
     for (var y = 30; y < 50; y++) {
         for (var x = 20; x < 40; x++) {
-            setPixels(x, y);
+            setPixel(x, y);
         }
     }
 
@@ -81,7 +81,7 @@ function main() {
 
     // -- functions --
 
-    function setPixels (x, y){
+    function setPixel (x, y){
         // check if oob of current fixed drawing space size
         if (x < 0 || x >= artWidth  || y < 0 || y >= artHeight) return;
 

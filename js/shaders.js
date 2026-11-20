@@ -17,7 +17,7 @@ var vertexShaderSource = `
 
      gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
      
-     // need to pass along text coordinates to frag
+     // need to pass along tex coordinates to frag
      v_texcord = a_texcord;
   }
 `;

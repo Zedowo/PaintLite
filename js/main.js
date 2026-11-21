@@ -167,6 +167,7 @@ function main() {
         gl.drawArrays(primitiveType, offset, count);
     }
 
+    /*
     function updateRectangle(event){
         var rectangle = canvas.getBoundingClientRect();
         var xDisplace = event.clientX - rectangle.left; // need to adjust for viewport vs. pointer position here
@@ -194,15 +195,16 @@ function main() {
 
         draw();
     }
+     */
 
     function pointerDownEvent(event){
         isDragging = true;
         canvas.setPointerCapture(event.pointerId);
-        updateRectangle(event);
+        paint(event);
     }
 
     function pointerMoveEvent(event){
-        if (isDragging) updateRectangle(event);
+        if (isDragging) paint(event);
     }
 
     function pointerUpEvent(event){
@@ -211,14 +213,14 @@ function main() {
 
     // -- events --
 
-    /*
+
     canvas.addEventListener("pointerdown", pointerDownEvent);
     canvas.addEventListener("pointermove", pointerMoveEvent);
     canvas.addEventListener("pointerup", pointerUpEvent);
     canvas.addEventListener("pointercancel", pointerUpEvent);
-    */
 
-    canvas.addEventListener("pointerdown", paint);
+
+    //canvas.addEventListener("pointerdown", paint);
 
     draw();
 }

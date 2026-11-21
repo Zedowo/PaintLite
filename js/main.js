@@ -51,9 +51,15 @@ function main() {
     var pixels = new Uint8Array(artWidth * artHeight * 4);
     pixels.fill(255);
 
+    var undoHistory = [];
+    var redoHistory = [];
+    var limit = 20;
+
     // ---
 
     var clearButton = document.getElementById("clear-canvas");
+    var undoButton = document.getElementById("undo");
+    var redoButton = document.getElementById("redo");
 
     var positions = [
         0, 0,
@@ -199,7 +205,42 @@ function main() {
         gl.drawArrays(primitiveType, offset, count);
     }
 
+    function saveHistory(){
+        undoHistory.push(pixels.slice());
+
+        if (undoHistory.length > limit) undoHistory.shift(); // as name implies, shifts over array
+        redoHistory.length = 0;
+    }
+
+    function undo(){
+        if (undoHistory.length === 0) return;
+
+        redoHistory.push(pixels.slice());
+        pixels.set(undoHistory.pop()); // grab previous state
+
+        prevX = null
+        prevY = null;
+
+        uploadPixels();
+        draw();
+    }
+
+    function redo(){
+        if (redoHistory.length === 0) return;
+
+        undoHistory.push(pixels.slice());
+        pixels.set(redoHistory.pop());
+
+        prevX = null
+        prevY = null;
+
+        uploadPixels();
+        draw();
+    }
+
     function clearCanvas(){
+        saveHistory();
+
         pixels.fill(255);
 
         isDragging = false;
@@ -212,6 +253,8 @@ function main() {
 
     function pointerDownEvent(event){
         if (event.button === 2) return; // prevent right click
+
+        saveHistory();
 
         isDragging = true;
         prevX = null; // reset stroke
@@ -240,6 +283,8 @@ function main() {
     canvas.addEventListener("pointercancel", pointerUpEvent);
 
     clearButton.addEventListener("click", clearCanvas);
+    undoButton.addEventListener("click", undo);
+    redoButton.addEventListener("click", redo);
 
     //canvas.addEventListener("pointerdown", paint);
 

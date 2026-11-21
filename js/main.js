@@ -32,6 +32,16 @@ function main() {
     var isDragging = false;
 
     var brushSize = 10;
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+    output.innerHTML = slider.value; // Display the default slider value
+    brushSize = Number(slider.value); // parse, can return string
+
+    slider.oninput = function() {
+        output.innerHTML = this.value;
+        brushSize = Number(slider.value);
+    }
+
     var prevX = null;
     var prevY = null;
 
@@ -140,7 +150,7 @@ function main() {
         }
 
         prevX = x;
-        prevY = y
+        prevY = y;
         uploadPixels();
         draw();
     }

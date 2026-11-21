@@ -198,6 +198,8 @@ function main() {
      */
 
     function pointerDownEvent(event){
+        if (event.button === 2) return;
+
         isDragging = true;
         canvas.setPointerCapture(event.pointerId);
         paint(event);

@@ -20,7 +20,7 @@ function main() {
     var texcordLocation = gl.getAttribLocation(program, "a_texcord");
     var imgLocation = gl.getUniformLocation(program, "u_image");
 
-    //- buffers --
+    //-- buffers --
 
     // Create a pos + tex buffer
     var positionBuffer = gl.createBuffer();
@@ -30,6 +30,10 @@ function main() {
 
     // check if mouse is dragging
     var isDragging = false;
+
+    var brushSize = 10;
+    var prevX = null;
+    var prevY = null;
 
     // fixed-size pixel array test
     var artWidth = 512;
@@ -81,6 +85,17 @@ function main() {
 
     // -- functions --
 
+    function squareBrush(x, y){
+        var xCord = x - Math.floor(brushSize / 2);
+        var yCord = y - Math.floor(brushSize / 2);
+
+        for (var i = 0; i < brushSize; i++){
+            for (var j = 0; j < brushSize; j++){
+                setPixel(xCord + j, yCord + i);
+            }
+        }
+    }
+
     function setPixel (x, y){
         // check if oob of current fixed drawing space size
         if (x < 0 || x >= artWidth  || y < 0 || y >= artHeight) return;
@@ -102,21 +117,30 @@ function main() {
         var rectangle = canvas.getBoundingClientRect();
         var xDisplace = event.clientX - rectangle.left;
         var yDisplace = event.clientY - rectangle.top;
-        var x = Math.floor((canvas.width / rectangle.width) * xDisplace); // floor to round to whole number
+        var x = Math.floor((canvas.width / rectangle.width) * xDisplace); // pointer position; floor to round to whole number
         var y = Math.floor((canvas.height / rectangle.height) * yDisplace);
 
-        //setPixel(x, y);
+        if (prevX === null || prevY === null) squareBrush(x, y); // draw if no point to connect to
+        else{
+            var dx = x - prevX;
+            var dy = y - prevY;
+            var numSteps = Math.max(Math.abs(dx), Math.abs(dy));
 
-        var brushSize = 10;
-        var xCord = x - Math.floor(brushSize / 2);
-        var yCord = y - Math.floor(brushSize / 2);
+            if (numSteps === 0) squareBrush(x, y); // no movement
+            else {
+                for (var step = 1; step <= numSteps; step++) {
+                    var currProgress = step / numSteps;
+                    var brushX = Math.round(prevX + (dx * currProgress));
+                    var brushY = Math.round(prevY + (dy * currProgress));
 
-        for (var i = 0; i < brushSize; i++){
-            for (var j = 0; j < brushSize; j++){
-                setPixel(xCord + j, yCord + i);
+                    squareBrush(brushX, brushY);
+
+                }
             }
         }
 
+        prevX = x;
+        prevY = y
         uploadPixels();
         draw();
     }
@@ -198,9 +222,10 @@ function main() {
      */
 
     function pointerDownEvent(event){
-        if (event.button === 2) return;
+        if (event.button === 2) return; // prevent right click
 
         isDragging = true;
+
         canvas.setPointerCapture(event.pointerId);
         paint(event);
     }
@@ -211,6 +236,8 @@ function main() {
 
     function pointerUpEvent(event){
         isDragging = false;
+        prevX = null; // reset stroke
+        prevY = null;
     }
 
     // -- events --

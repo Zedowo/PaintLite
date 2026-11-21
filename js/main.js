@@ -225,6 +225,8 @@ function main() {
         if (event.button === 2) return; // prevent right click
 
         isDragging = true;
+        prevX = null; // reset stroke
+        prevY = null;
 
         canvas.setPointerCapture(event.pointerId);
         paint(event);

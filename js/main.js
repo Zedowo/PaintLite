@@ -51,12 +51,6 @@ function main() {
     var pixels = new Uint8Array(artWidth * artHeight * 4);
     pixels.fill(255);
 
-    for (var y = 30; y < 50; y++) {
-        for (var x = 20; x < 40; x++) {
-            setPixel(x, y);
-        }
-    }
-
     var positions = [
         0, 0,
         artWidth, 0,
@@ -263,7 +257,7 @@ function main() {
 
     //canvas.addEventListener("pointerdown", paint);
 
-    draw();
+    //draw();
 }
 
 main();

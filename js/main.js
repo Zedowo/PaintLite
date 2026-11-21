@@ -92,6 +92,35 @@ function main() {
         pixels[index+3] = 255;
     }
 
+    function uploadPixels(){
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, artWidth, artHeight, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    }
+
+    function paint(event){
+        var rectangle = canvas.getBoundingClientRect();
+        var xDisplace = event.clientX - rectangle.left;
+        var yDisplace = event.clientY - rectangle.top;
+        var x = Math.floor((canvas.width / rectangle.width) * xDisplace); // floor to round to whole number
+        var y = Math.floor((canvas.height / rectangle.height) * yDisplace);
+
+        //setPixel(x, y);
+
+        var brushSize = 10;
+        var xCord = x - Math.floor(brushSize / 2);
+        var yCord = y - Math.floor(brushSize / 2);
+
+        for (var i = 0; i < brushSize; i++){
+            for (var j = 0; j < brushSize; j++){
+                setPixel(xCord + j, yCord + i);
+            }
+        }
+
+        uploadPixels();
+        draw();
+    }
+
     function draw(){
         webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
@@ -125,7 +154,7 @@ function main() {
 
         // draw
         var primitiveType = gl.TRIANGLES;
-        var offset = 0;
+        offset = 0;
         var count = 6;
 
         gl.enableVertexAttribArray(texcordLocation);
@@ -142,8 +171,8 @@ function main() {
         var rectangle = canvas.getBoundingClientRect();
         var xDisplace = event.clientX - rectangle.left; // need to adjust for viewport vs. pointer position here
         var yDisplace = event.clientY - rectangle.top;
-        var x = (canvas.width / rectangle.width) * xDisplace // need to also account for different scale
-        var y = (canvas.height / rectangle.height) * yDisplace
+        var x = (canvas.width / rectangle.width) * xDisplace; // need to also account for different scale
+        var y = (canvas.height / rectangle.height) * yDisplace;
 
         //rectangle's dimensions, to be changed later (make it adjustable with slider?)
         var recWidth = 80;
@@ -188,6 +217,8 @@ function main() {
     canvas.addEventListener("pointerup", pointerUpEvent);
     canvas.addEventListener("pointercancel", pointerUpEvent);
     */
+
+    canvas.addEventListener("pointerdown", paint);
 
     draw();
 }

@@ -51,6 +51,10 @@ function main() {
     var pixels = new Uint8Array(artWidth * artHeight * 4);
     pixels.fill(255);
 
+    // ---
+
+    var clearButton = document.getElementById("clear-canvas");
+
     var positions = [
         0, 0,
         artWidth, 0,
@@ -134,7 +138,7 @@ function main() {
             else {
                 for (var step = 1; step <= numSteps; step++) {
                     var currProgress = step / numSteps;
-                    var brushX = Math.round(prevX + (dx * currProgress));
+                    var brushX = Math.round(prevX + (dx * currProgress)); // interpolation
                     var brushY = Math.round(prevY + (dy * currProgress));
 
                     squareBrush(brushX, brushY);
@@ -195,35 +199,16 @@ function main() {
         gl.drawArrays(primitiveType, offset, count);
     }
 
-    /*
-    function updateRectangle(event){
-        var rectangle = canvas.getBoundingClientRect();
-        var xDisplace = event.clientX - rectangle.left; // need to adjust for viewport vs. pointer position here
-        var yDisplace = event.clientY - rectangle.top;
-        var x = (canvas.width / rectangle.width) * xDisplace; // need to also account for different scale
-        var y = (canvas.height / rectangle.height) * yDisplace;
+    function clearCanvas(){
+        pixels.fill(255);
 
-        //rectangle's dimensions, to be changed later (make it adjustable with slider?)
-        var recWidth = 80;
-        var recHeight = 20;
+        isDragging = false;
+        prevX = null
+        prevY = null;
 
-        var recPositions = [
-            //top left triangle
-            x, y,
-            x + recWidth, y,
-            x, y + recHeight,
-            //bottom right triangle
-            x + recWidth, y,
-            x + recWidth, y + recHeight,
-            x, y + recHeight,
-        ];
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(recPositions), gl.DYNAMIC_DRAW);
-
+        uploadPixels();
         draw();
     }
-     */
 
     function pointerDownEvent(event){
         if (event.button === 2) return; // prevent right click
@@ -254,10 +239,11 @@ function main() {
     canvas.addEventListener("pointerup", pointerUpEvent);
     canvas.addEventListener("pointercancel", pointerUpEvent);
 
+    clearButton.addEventListener("click", clearCanvas);
 
     //canvas.addEventListener("pointerdown", paint);
 
-    //draw();
+    draw();
 }
 
 main();

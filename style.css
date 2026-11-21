@@ -17,6 +17,13 @@ canvas {
     background: white;
 }
 
+.canvas-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
 .slidecontainer {
     position: fixed;
     top: 12px;

@@ -60,6 +60,7 @@ function main() {
     var clearButton = document.getElementById("clear-canvas");
     var undoButton = document.getElementById("undo");
     var redoButton = document.getElementById("redo");
+    var currTool = document.getElementById("tool");
 
     var positions = [
         0, 0,
@@ -99,6 +100,16 @@ function main() {
 
     // -- functions --
 
+    function getCanvasPosition(event){ //reused between brush and bucket
+        var rectangle = canvas.getBoundingClientRect();
+        var xDisplace = event.clientX - rectangle.left;
+        var yDisplace = event.clientY - rectangle.top;
+        var x = Math.floor((canvas.width / rectangle.width) * xDisplace); // pointer position; floor to round to whole number
+        var y = Math.floor((canvas.height / rectangle.height) * yDisplace);
+
+        return [x, y];
+    }
+
     function squareBrush(x, y){
         var xCord = x - Math.floor(brushSize / 2);
         var yCord = y - Math.floor(brushSize / 2);
@@ -128,11 +139,9 @@ function main() {
     }
 
     function paint(event){
-        var rectangle = canvas.getBoundingClientRect();
-        var xDisplace = event.clientX - rectangle.left;
-        var yDisplace = event.clientY - rectangle.top;
-        var x = Math.floor((canvas.width / rectangle.width) * xDisplace); // pointer position; floor to round to whole number
-        var y = Math.floor((canvas.height / rectangle.height) * yDisplace);
+        var point = getCanvasPosition(event);
+        var x = point[0];
+        var y = point[1];
 
         if (prevX === null || prevY === null) squareBrush(x, y); // draw if no point to connect to
         else{
@@ -238,6 +247,62 @@ function main() {
         draw();
     }
 
+    function bucketFill(startX, startY){
+        if (startX < 0 || startX >= artWidth ||
+            startY < 0 || startY >= artHeight) return;
+
+        var startIndex = (startY * artWidth + startX) * 4;
+        var targetColor = [
+            pixels[startIndex],
+            pixels[startIndex+1],
+            pixels[startIndex+2],
+            pixels[startIndex+3]
+        ];
+        var fillColor = [255, 0, 255, 255] // CHANGE LATER WHEN YOU DO OTHER COLORS
+        var spotsLeft = [];
+
+        // clicked color is already fill color, just return
+        if (targetColor[0] === fillColor[0] &&
+            targetColor[1] === fillColor[1] &&
+            targetColor[2] === fillColor[2] &&
+            targetColor[3] === fillColor[3]) {
+            return;
+        }
+
+        saveHistory();
+
+        addPixel(startX, startY);
+
+        while (spotsLeft.length > 0){ // go through all possible spots for fill bucket
+            var cords = spotsLeft.pop();
+            var x = cords[0];
+            var y = cords[1];
+
+            addPixel(x+1, y);
+            addPixel(x-1, y);
+            addPixel(x, y+1);
+            addPixel(x, y-1);
+        }
+
+        uploadPixels();
+        draw();
+
+        function addPixel(x, y){
+            if (x < 0 || x >= artWidth ||
+                y < 0 || y >= artHeight) return;
+
+            var index = (y * artWidth + x) * 4;
+
+            if (!(pixels[index] === targetColor[0] &&
+                pixels[index+1] === targetColor[1] &&
+                pixels[index+2] === targetColor[2] &&
+                pixels[index+3] === targetColor[3])) return;
+
+            setPixel(x, y);
+            spotsLeft.push([x, y]);
+        }
+    }
+
     function clearCanvas(){
         saveHistory();
 
@@ -254,14 +319,25 @@ function main() {
     function pointerDownEvent(event){
         if (event.button === 2) return; // prevent right click
 
-        saveHistory();
+        if (currTool.value === "brush"){
+            saveHistory();
 
-        isDragging = true;
-        prevX = null; // reset stroke
-        prevY = null;
+            isDragging = true;
+            prevX = null; // reset stroke
+            prevY = null;
 
-        canvas.setPointerCapture(event.pointerId);
-        paint(event);
+            canvas.setPointerCapture(event.pointerId);
+            paint(event);
+        }
+
+        else if (currTool.value === "bucket"){
+            var point = getCanvasPosition(event);
+            var x = point[0];
+            var y = point[1];
+
+            bucketFill(x, y);
+        }
+
     }
 
     function pointerMoveEvent(event){
